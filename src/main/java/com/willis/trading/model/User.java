@@ -1,6 +1,7 @@
 package com.willis.trading.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.willis.trading.domain.USER_ROLE;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +20,8 @@ public class User {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    private USER_ROLE role= USER_ROLE.ROLE_CUSTOMER;
 
 
 
