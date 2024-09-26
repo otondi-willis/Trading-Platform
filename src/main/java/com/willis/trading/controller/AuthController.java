@@ -1,11 +1,12 @@
 package com.willis.trading.controller;
 
-import com.willis.trading.model.User;
+import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,15 +17,17 @@ public class AuthController {
     private UserRepository userRepository;
 
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(User user){
-        User newUser = new User();
-        newUser.setEmail(user.getEmail());
-        newUser.setFullName(user.getFullName());
-        newUser.setPassword(user.getPassword());
 
-        User savedUser = userRepository.save(newUser);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    @PostMapping("/register")
+    public ResponseEntity<Users> register(@RequestBody Users users){
+        Users newUsers = new Users();
+        newUsers.setEmail(users.getEmail());
+        newUsers.setFullName(users.getFullName());
+        newUsers.setPassword(users.getPassword());
+
+
+        Users savedUsers = userRepository.save(newUsers);;
+        return new ResponseEntity<>(savedUsers, HttpStatus.CREATED);
 
         
 
