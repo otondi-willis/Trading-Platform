@@ -1,7 +1,9 @@
 package com.willis.trading.controller;
 
+import com.willis.trading.config.JwtProvider;
 import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
+import com.willis.trading.response.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<Users> register(@RequestBody Users users) throws Exception {
+    public ResponseEntity<AuthResponse> register(@RequestBody Users users) throws Exception {
 
 
         Users isEmailExist=userRepository.findByEmail(users.getEmail());
@@ -46,9 +48,15 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
+        String jwt= JwtProvider.generateToken(auth);
+
+        AuthResponse res=new AuthResponse();
+        res.setJwt(jwt);
+        res.setStatus(true);
+        res.setMessage("register successful");
 
 
-        return new ResponseEntity<>(savedUsers, HttpStatus.CREATED);
+        return new ResponseEntity<>(res, HttpStatus.CREATED);
 
         
 
