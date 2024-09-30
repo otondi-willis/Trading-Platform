@@ -7,18 +7,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.crypto.SecretKey;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class JwtProvider {
 
     private static SecretKey key =Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
 
     public static String generateToken(Authentication auth){
-        Collections<? extends GrantedAuthority> authorities = auth.getAuthorities();
-        String roles=popupateAuthorities(authorities);
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+        String roles=populateAuthorities((Collection) authorities);
 
         String jwt= Jwts.builder()
                 .setIssuedAt(new Date())
@@ -33,13 +30,17 @@ public class JwtProvider {
 
     public static String getEmailFromToken(String token){
         token=token.substring(7);
-        Claims claims= Jwts.parser().setSigningKey(key).build().parseClaimsJwt(token).getBody();
+        Claims claims= Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJwt(token)
+                .getBody();
         String email= String.valueOf(claims.get("email"));
 
         return email;
     }
 
-    private static String popupateAuthorities(Collections authorities) {
+    private static String populateAuthorities(Collection<? extends GrantedAuthority> authorities) {
         Set<String> auth=new HashSet<>();
         for(GrantedAuthority ga:authorities){
             auth.add(ga.getAuthority());
