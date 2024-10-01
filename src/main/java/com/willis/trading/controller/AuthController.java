@@ -1,10 +1,13 @@
 package com.willis.trading.controller;
 
 import com.willis.trading.config.JwtProvider;
+import com.willis.trading.model.TwoFactorOTP;
 import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
 import com.willis.trading.response.AuthResponse;
 import com.willis.trading.service.CustomUserDetailsService;
+import com.willis.trading.service.TwoFactorOtpService;
+import com.willis.trading.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TwoFactorOtpService twoFactorOtpService;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -78,8 +84,21 @@ public class AuthController {
 
         String jwt= JwtProvider.generateToken(auth);
 
-        if(users.getTwoFactorAuth().isEnabled()){
+        Users authUser=userRepository.findByEmail(userName);
 
+        if(users.getTwoFactorAuth().isEnabled()){
+            AuthResponse res=new AuthResponse();
+            res.setMessage("Two factor auth is enabled");
+            res.setTwoFactorAuthEnabled(true);
+            String otp= OtpUtils.generateOTP();
+
+            TwoFactorOTP oldTwoFactorOTP=twoFactorOtpService.findByUser(authUser.getId());
+            if(oldTwoFactorOTP!=null){
+                twoFactorOtpService.deletedTwoFactorOtp(oldTwoFactorOTP);
+            }
+            TwoFactorOTP newTwoFactorOTP = twoFactorOtpService.createTwoFactorOtp(authUser,otp,jwt);
+            res.setSession(newTwoFactorOTP.getId());
+            return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
         }
 
         AuthResponse res=new AuthResponse();
