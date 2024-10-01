@@ -2,8 +2,15 @@ package com.willis.trading.service;
 
 import com.willis.trading.model.TwoFactorOTP;
 import com.willis.trading.model.Users;
+import com.willis.trading.repository.TwoFactorOtpRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TwoFactorOtpServiceImpl implements TwoFactorOtpService{
+
+    @Autowired
+    private TwoFactorOtpRepository twoFactorOtpRepository;
 
     @Override
     public TwoFactorOTP createTwoFactorOtp(Users user, String otp, String jwt) {
