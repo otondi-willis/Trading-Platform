@@ -43,7 +43,7 @@ public class TwoFactorOtpServiceImpl implements TwoFactorOtpService{
 
     @Override
     public boolean verifyTwoFactoOTP(TwoFactorOTP twoFactorOtp, String otp) {
-        return false;
+        return twoFactorOtp.getOtp().equals(otp);
     }
 
     @Override
