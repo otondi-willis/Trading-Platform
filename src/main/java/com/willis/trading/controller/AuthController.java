@@ -6,6 +6,7 @@ import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
 import com.willis.trading.response.AuthResponse;
 import com.willis.trading.service.CustomUserDetailsService;
+import com.willis.trading.service.EmailService;
 import com.willis.trading.service.TwoFactorOtpService;
 import com.willis.trading.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private TwoFactorOtpService twoFactorOtpService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -97,6 +98,9 @@ public class AuthController {
                 twoFactorOtpService.deletedTwoFactorOtp(oldTwoFactorOTP);
             }
             TwoFactorOTP newTwoFactorOTP = twoFactorOtpService.createTwoFactorOtp(authUser,otp,jwt);
+
+            emailService.sendVerificationOtpEmail(userName,otp);
+
             res.setSession(newTwoFactorOTP.getId());
             return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
         }
@@ -123,5 +127,20 @@ public class AuthController {
             throw new BadCredentialsException("invalid password");
         }
         return new UsernamePasswordAuthenticationToken(userDetails,password,userDetails.getAuthorities());
+    }
+    public ResponseEntity<AuthResponse> verifySigninOtp(@PathVariable String otp, @RequestParam String id) throws Exception {
+
+        TwoFactorOTP twoFactorOTP=twoFactorOtpService.findById(id);
+
+        if(twoFactorOtpService.verifyTwoFactoOTP(twoFactorOTP,otp)){
+            AuthResponse res=new AuthResponse();
+            res.setMessage("Two factor authentication verified");
+            res.setTwoFactorAuthEnabled(true);
+            res.setJwt(twoFactorOTP.getJwt());
+            return new ResponseEntity<>(res,HttpStatus.OK);
+        }
+        throw new Exception("invalid otp");
+
+
     }
 }
