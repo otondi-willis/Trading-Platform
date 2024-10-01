@@ -48,6 +48,6 @@ public class TwoFactorOtpServiceImpl implements TwoFactorOtpService{
 
     @Override
     public void deletedTwoFactorOtp(TwoFactorOTP twoFactorOtp) {
-
+        twoFactorOtpRepository.delete(twoFactorOtp);
     }
 }
