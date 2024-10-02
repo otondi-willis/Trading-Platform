@@ -1,5 +1,6 @@
 package com.willis.trading.service;
 
+import com.willis.trading.config.JwtProvider;
 import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Override
-    public Users findUserProfileByJwt(String jwt) {
-        return null;
+    public Users findUserProfileByJwt(String jwt) throws Exception {
+        String email= JwtProvider.getEmailFromToken(jwt);
+        Users user=userRepository.findByEmail(email);
+        if(user==null){
+            throw new Exception("user not found");
+        }
+        return user;
     }
 
     @Override
