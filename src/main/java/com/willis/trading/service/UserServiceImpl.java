@@ -1,6 +1,8 @@
 package com.willis.trading.service;
 
 import com.willis.trading.config.JwtProvider;
+import com.willis.trading.domain.VerificationType;
+import com.willis.trading.model.TwoFactorAuth;
 import com.willis.trading.model.Users;
 import com.willis.trading.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +43,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users enableTwoFactorAuthentication(Users user) {
-        return null;
+    public Users enableTwoFactorAuthentication(VerificationType verificationType, String sendTo, Users user) {
+        TwoFactorAuth twoFactorAuth=new TwoFactorAuth();
+        twoFactorAuth.setEnabled(true);
+        twoFactorAuth.setSendTo(verificationType);
+        user.setTwoFactorAuth(twoFactorAuth);
+
+        return userRepository.save(user);
     }
+
 
     @Override
     public Users updatePassword(Users user, String newPassword) {
