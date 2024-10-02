@@ -6,6 +6,8 @@ import com.willis.trading.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -30,8 +32,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users findUserById(Long userId) {
-        return null;
+    public Users findUserById(Long userId) throws Exception {
+        Optional<Users> user = userRepository.findById(userId);
+        if(user.isEmpty()){
+            throw new Exception("user not found");
+        }
+        return user.get();
     }
 
     @Override
