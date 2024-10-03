@@ -2,8 +2,10 @@ package com.willis.trading.controller;
 
 import com.willis.trading.domain.VerificationType;
 import com.willis.trading.model.Users;
+import com.willis.trading.model.VerificationCode;
 import com.willis.trading.service.EmailService;
 import com.willis.trading.service.UserService;
+import com.willis.trading.service.VerificationCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private VerificationCodeService verificationCodeService;
 
     @Autowired
     private EmailService emailService;
@@ -25,14 +30,26 @@ public class UserController {
     }
 
     @PostMapping("/api/users/verification/{verificationType}/send-otp")
-    public ResponseEntity<Users> sendVerificationOtp(
+    public ResponseEntity<String> sendVerificationOtp(
             @RequestHeader("Authorization") String jwt,
             @PathVariable VerificationType verificationType) throws Exception {
 
         Users user=userService.findUserProfileByJwt(jwt);
 
+        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(user.getId());
+        if(verificationCode==null){
+            verificationCode=verificationCodeService.
+                    sendVerificationCode(user,verificationType);
 
-        return new ResponseEntity<Users>(user, HttpStatus.OK);
+        }
+        if(verificationType.equals(VerificationType.EMAIL)){
+            emailService.sendVerificationOtpEmail(user.getEmail(),verificationCode.getOtp());
+        }
+
+
+
+
+        return new ResponseEntity<>("verification otp sent successfully", HttpStatus.OK);
     }
 
     @PatchMapping("/api/users/enable-two-factor/verify-otp/{otp}")
