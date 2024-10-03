@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.User;
 
 public interface VerificationCodeService {
     VerificationCode sendVerificationCode(Users user, VerificationType verificationType);
-    VerificationCode getVerificationCodeById(Long id);
+    VerificationCode getVerificationCodeById(Long id) throws Exception;
     VerificationCode getVerificationCodeByUser(Long userId);
     void deleteVerificatonCodeById(VerificationCode verificationCode);
 
