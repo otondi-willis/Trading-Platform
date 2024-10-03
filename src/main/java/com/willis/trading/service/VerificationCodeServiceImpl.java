@@ -44,6 +44,6 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     @Override
     public void deleteVerificatonCodeById(VerificationCode verificationCode) {
-
+        verificationCodeRepository.delete(verificationCode);
     }
 }
