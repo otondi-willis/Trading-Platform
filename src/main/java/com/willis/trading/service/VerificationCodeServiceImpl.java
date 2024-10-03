@@ -39,7 +39,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     @Override
     public VerificationCode getVerificationCodeByUser(Long userId) {
-        return null;
+        return verificationCodeRepository.findByUserId(userId);
     }
 
     @Override
