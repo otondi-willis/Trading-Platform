@@ -43,6 +43,7 @@ public class ForgotPasswordImpl implements ForgotPasswordService {
 
     @Override
     public void deleteToken(ForgotPasswordToken token) {
+        forgotPasswordRepository.delete(token);
 
     }
 }
