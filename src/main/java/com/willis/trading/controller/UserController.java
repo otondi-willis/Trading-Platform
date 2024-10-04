@@ -54,9 +54,25 @@ public class UserController {
 
     @PatchMapping("/api/users/enable-two-factor/verify-otp/{otp}")
     public ResponseEntity<Users> enableTwoFactorAuthentication(
+            @PathVariable String otp,
             @RequestHeader("Authorization") String jwt) throws Exception {
         Users user=userService.findUserProfileByJwt(jwt);
-        return new ResponseEntity<Users>(user, HttpStatus.OK);
+
+        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(user.getId());
+        String sendTo=verificationCode.getVerificationType().equals(VerificationType.EMAIL)?
+                verificationCode.getEmail():verificationCode.getMobile();
+
+        boolean isVerified=verificationCode.getOtp().equals(otp);
+
+        if(isVerified){
+            Users updatedUser=userService.enableTwoFactorAuthentication(
+                    verificationCode.getVerificationType(),sendTo,user);
+            verificationCodeService.deleteVerificatonCodeById(verificationCode);
+            return new ResponseEntity<>(updatedUser,HttpStatus.OK);
+        }
+
+
+        throw new Exception("wrong otp");
     }
 
 }
