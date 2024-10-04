@@ -37,7 +37,8 @@ public class ForgotPasswordImpl implements ForgotPasswordService {
 
     @Override
     public ForgotPasswordToken findByUser(Long userId) {
-        return null;
+
+        return forgotPasswordRepository.findByUserId(userId);
     }
 
     @Override
