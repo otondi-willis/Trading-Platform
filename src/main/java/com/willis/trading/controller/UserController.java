@@ -1,10 +1,12 @@
 package com.willis.trading.controller;
 
-import com.willis.trading.ForgotPasswordTokenRequest;
+import com.willis.trading.request.ForgotPasswordTokenRequest;
 import com.willis.trading.domain.VerificationType;
 import com.willis.trading.model.ForgotPasswordToken;
 import com.willis.trading.model.Users;
 import com.willis.trading.model.VerificationCode;
+import com.willis.trading.request.ResetPasswordRequest;
+import com.willis.trading.response.ApiResponse;
 import com.willis.trading.response.AuthResponse;
 import com.willis.trading.service.EmailService;
 import com.willis.trading.service.ForgotPasswordService;
@@ -113,5 +115,30 @@ public class UserController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PatchMapping("/auth/users/reset-password/verify-otp")
+    public ResponseEntity<ApiResponse> resetPassword(
+            @RequestParam String id,
+            @RequestBody ResetPasswordRequest req,
+            @RequestHeader("Authorization") String jwt) throws Exception {
+        Users user=userService.findUserProfileByJwt(jwt);
+
+        ForgotPasswordToken forgotPasswordToken=forgotPasswordService.findById(id);
+
+        boolean isVerified=forgotPasswordToken.getOtp().equals(req.getOtp());
+
+        if(isVerified){
+            userService.updatePassword(forgotPasswordToken.getUser(), req.getPassword());
+            ApiResponse res=new ApiResponse();
+            res.setMessage("password update successfully");
+            return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
+
+        }
+
+
+        throw new Exception("wrong otp");
+    }
+
+
 
 }
